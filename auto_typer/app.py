@@ -4,6 +4,8 @@ app.py
 ApplicationGUI — main window for the Auto Typer tool.
 """
 
+from __future__ import annotations
+
 import tkinter as tk
 
 from auto_typer.clipboard import ClipboardManager
@@ -12,16 +14,16 @@ from auto_typer.typist import Typist
 
 
 class ApplicationGUI:
-    def __init__(self, root):
+    def __init__(self, root: tk.Tk) -> None:
         self.root = root
         self.root.title("PyAutoGUI Typing Tool")
         self._clipboard = ClipboardManager()
         self._typist = Typist()
-        self._listener = None
+        self._listener: MouseListenerManager | None = None
         self._build_ui()
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
 
-    def _build_ui(self):
+    def _build_ui(self) -> None:
         tk.Label(self.root, text="Clipboard Content:").pack(pady=5)
 
         self._text_widget = tk.Text(self.root, height=4, width=50, state=tk.DISABLED)
@@ -38,27 +40,27 @@ class ApplicationGUI:
                                    command=self._stop_listener, state=tk.DISABLED)
         self._stop_btn.pack(pady=5)
 
-    def _fetch_clipboard(self):
+    def _fetch_clipboard(self) -> None:
         content = self._clipboard.fetch()
         self._clipboard.show_in_widget(self._text_widget, content)
 
-    def _start_listener(self):
+    def _start_listener(self) -> None:
         self._listener = MouseListenerManager(self._type_clipboard_at)
         self._listener.start()
         self._start_btn.config(state=tk.DISABLED)
         self._stop_btn.config(state=tk.NORMAL)
 
-    def _stop_listener(self):
+    def _stop_listener(self) -> None:
         if self._listener:
             self._listener.stop()
             self._listener = None
         self._start_btn.config(state=tk.NORMAL)
         self._stop_btn.config(state=tk.DISABLED)
 
-    def _type_clipboard_at(self, x, y):
+    def _type_clipboard_at(self, x: int, y: int) -> None:
         text = self._clipboard.fetch()
         self._typist.type_at(x, y, text)
 
-    def _on_close(self):
+    def _on_close(self) -> None:
         self._stop_listener()
         self.root.destroy()
